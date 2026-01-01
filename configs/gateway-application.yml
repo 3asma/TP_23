@@ -1,0 +1,40 @@
+spring:
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: Gateway
+        health-check-interval: 10s
+        instance-id: ${spring.application.name}:${server.port}
+        prefer-ip-address: true
+    gateway:
+      routes:
+        - id: service-client
+          uri: lb://SERVICE-CLIENT
+          predicates:
+            - Path=/clients/**
+          filters:
+            - StripPrefix=1
+        
+        - id: service-voiture
+          uri: lb://SERVICE-VOITURE
+          predicates:
+            - Path=/voitures/**
+          filters:
+            - StripPrefix=1
+
+  application:
+    name: Gateway
+
+server:
+  port: 8888
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
